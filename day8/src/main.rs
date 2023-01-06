@@ -1,7 +1,7 @@
 use std::{fs, io::{self, BufRead}};
 
 struct Day8 {
-    map: Vec<Vec<i32>>,
+    tree_map: Vec<Vec<i32>>,
 
 }
 
@@ -9,7 +9,7 @@ impl Day8 {
 
     fn new() -> Self {
         Self {
-            map: Vec::new(),
+            tree_map: Vec::new(),
         }
     }
 
@@ -26,17 +26,67 @@ impl Day8 {
                 Err(e) => println!("{e}")
             }
 
-            self.map.push(line_data.chars().map(|element| 
+            self.tree_map.push(line_data.chars().map(|element| 
                     element.to_string().parse::<i32>().unwrap()).collect());
         }
-
-        println!("{:?}", self.map);
-        
     }
 
     fn part1(&self) {
-
-        println!("Part1: Unsolved");
+        let mut visible_trees = 0;
+        for row in 0..self.tree_map.len() {
+            for col in 0..self.tree_map[row].len() {
+                let mut inc_flag = false;
+                let current_val = self.tree_map[row][col];
+                {
+                    let mut vis_flag = true;
+                    for hl in 0..col {
+                        if self.tree_map[row][hl] >= current_val {
+                            vis_flag = false;
+                        }
+                    }
+                    if vis_flag == true {
+                        inc_flag = true;
+                    }
+                }
+                if inc_flag != true {
+                    let mut vis_flag = true;
+                    for hr in col+1..self.tree_map[row].len() {
+                        if self.tree_map[row][hr] >= current_val {
+                            vis_flag = false;
+                        }
+                    }
+                    if vis_flag == true {
+                        inc_flag = true;
+                    }
+                }
+                if inc_flag != true {
+                    let mut vis_flag = true;
+                    for vt in 0..row {
+                        if self.tree_map[vt][col] >= current_val {
+                            vis_flag = false;
+                        }
+                    }
+                    if vis_flag == true {
+                        inc_flag = true;
+                    }
+                }
+                if inc_flag != true {
+                    let mut vis_flag = true;
+                    for vb in row+1..self.tree_map.len() {
+                        if self.tree_map[vb][col] >= current_val {
+                            vis_flag = false;
+                        }
+                    }
+                    if vis_flag == true {
+                        inc_flag = true;
+                    }
+                }
+                if inc_flag {
+                    visible_trees += 1;
+                }
+            }
+        }
+        println!("Part1: Number of visible trees is {visible_trees}");
     }
 
     fn part2(&self) {
