@@ -39,7 +39,7 @@ impl Day8 {
                 let current_val = self.tree_map[row][col];
                 {
                     let mut vis_flag = true;
-                    for hl in 0..col {
+                    for hl in (0..col).rev() {
                         if self.tree_map[row][hl] >= current_val {
                             vis_flag = false;
                         }
@@ -61,7 +61,7 @@ impl Day8 {
                 }
                 if inc_flag != true {
                     let mut vis_flag = true;
-                    for vt in 0..row {
+                    for vt in (0..row).rev() {
                         if self.tree_map[vt][col] >= current_val {
                             vis_flag = false;
                         }
@@ -90,8 +90,50 @@ impl Day8 {
     }
 
     fn part2(&self) {
+        let mut highest_score = 0;
+        for row in 0..self.tree_map.len() {
+            for col in 0..self.tree_map[row].len() {
+                let current_val = self.tree_map[row][col];
+                let mut north_score = 0;
+                let mut south_score = 0;
+                let mut west_score = 0;
+                let mut east_score = 0;
 
-        println!("Part2: Unsolved");
+                for hl in (0..col).rev() {
+                    west_score += 1;
+                    if self.tree_map[row][hl] >= current_val {
+                        break;
+                    }
+                }
+
+                for hr in col+1..self.tree_map[row].len() {
+                    east_score += 1;
+                    if self.tree_map[row][hr] >= current_val {
+                        break;
+                    }
+                }
+
+                for vt in (0..row).rev() {
+                    north_score += 1;
+                    if self.tree_map[vt][col] >= current_val {
+                        break;
+                    }
+                }
+
+                for vb in row+1..self.tree_map.len() {
+                    south_score += 1;
+                    if self.tree_map[vb][col] >= current_val {
+                        break;
+                    }
+                }
+                let scenic_score = north_score * south_score * west_score * east_score;
+                if scenic_score > highest_score {
+                    highest_score = scenic_score;
+                }
+            }
+        }
+
+        println!("Part2: Highest scenic score possible is {highest_score}");
     }
 }
 
