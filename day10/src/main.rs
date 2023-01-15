@@ -1,7 +1,8 @@
-use std::{fs, io::{self, BufRead}, collections::HashSet};
+use std::{fs, io::{self, BufRead}};
 
 #[derive(Default)]
 struct Day10 {
+    commands: Vec<(Instruction, i32)>,
 }
 
 impl Day10 {
@@ -22,8 +23,20 @@ impl Day10 {
                 Ok(v) => line_data = v,
                 Err(e) => println!("{e}")
             }
-
-
+            // let (instr, para) = line_data.split(' ').collect();
+            if line_data.contains(' ') {
+                let (instr, para) = line_data.split_once(' ').unwrap();
+                let instr = Instruction::parse(instr);
+                if instr == Instruction::ADDX {
+                    let para: i32 = para.parse().unwrap();
+                    self.commands.push((instr, para));
+                }
+            } else {
+                let instr = Instruction::parse(line_data.as_str());
+                if instr == Instruction::NOOP {
+                    self.commands.push((instr, 0));
+                }
+            }
         }
     }
 
@@ -33,6 +46,38 @@ impl Day10 {
 
     fn part2(&self) {
         println!("Part2: Unsolved");
+    }
+}
+
+
+#[derive(Debug,PartialEq)]
+enum Instruction {
+    NOOP,
+    ADDX
+}
+
+impl Instruction {
+    fn parse(s: &str) -> Self {
+        match s {
+            "noop" => Self::NOOP,
+            "addx" => Self::ADDX,
+            _ => panic!("invalid instruction '{s}'")
+        }
+    }
+}
+
+struct Computer {
+    x_reg: i32,
+    cycle: i32
+}
+
+impl Computer {
+    fn incr_cycle(&mut self) {
+        self.cycle += 1;
+    }
+
+    fn execute_instruction(&mut self) {
+
     }
 }
 
