@@ -23,7 +23,6 @@ impl Day10 {
                 Ok(v) => line_data = v,
                 Err(e) => println!("{e}")
             }
-            // let (instr, para) = line_data.split(' ').collect();
             if line_data.contains(' ') {
                 let (instr, para) = line_data.split_once(' ').unwrap();
                 let instr = Instruction::parse(instr);
@@ -41,6 +40,7 @@ impl Day10 {
     }
 
     fn part1(&self) {
+        let comp = Computer::new();
         println!("Part1: Unsolved");
     }
 
@@ -72,11 +72,30 @@ struct Computer {
 }
 
 impl Computer {
+
+    fn new() -> Self {
+        Self {
+            x_reg: 1,
+            cycle: 0
+        }
+    }
     fn incr_cycle(&mut self) {
         self.cycle += 1;
     }
 
-    fn execute_instruction(&mut self) {
+    fn execute_instruction(&mut self, instr: &Instruction, val: i32) {
+        match instr {
+            Instruction::NOOP => {
+                self.incr_cycle();
+            },
+            Instruction::ADDX => {
+
+            }
+        }
+
+    }
+
+    fn inspect_values(&self) {
 
     }
 }
