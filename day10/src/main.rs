@@ -87,8 +87,14 @@ impl Computer {
         match instr {
             Instruction::NOOP => {
                 self.incr_cycle();
+                self.inspect_values();
             },
             Instruction::ADDX => {
+                self.incr_cycle();
+                self.inspect_values();
+                self.incr_cycle();
+                self.inspect_values();
+                self.x_reg += val;
 
             }
         }
