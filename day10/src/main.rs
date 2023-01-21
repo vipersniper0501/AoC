@@ -40,8 +40,11 @@ impl Day10 {
     }
 
     fn part1(&self) {
-        let comp = Computer::new();
-        println!("Part1: Unsolved");
+        let mut comp = Computer::new();
+        for (instr, val) in &self.commands {
+            comp.execute_instruction(instr, *val)
+        }
+        println!("Part1: Signal Strength: {}", comp.signal_strengths);
     }
 
     fn part2(&self) {
@@ -68,7 +71,8 @@ impl Instruction {
 
 struct Computer {
     x_reg: i32,
-    cycle: i32
+    cycle: i32,
+    signal_strengths: i32
 }
 
 impl Computer {
@@ -76,7 +80,8 @@ impl Computer {
     fn new() -> Self {
         Self {
             x_reg: 1,
-            cycle: 0
+            cycle: 0,
+            signal_strengths: 0
         }
     }
     fn incr_cycle(&mut self) {
@@ -101,8 +106,12 @@ impl Computer {
 
     }
 
-    fn inspect_values(&self) {
-
+    fn inspect_values(&mut self) {
+        if self.cycle == 20 {
+            self.signal_strengths += self.x_reg * self.cycle;
+        } else if (self.cycle - 20) % 40 == 0 {
+            self.signal_strengths += self.x_reg * self.cycle;
+        }
     }
 }
 
