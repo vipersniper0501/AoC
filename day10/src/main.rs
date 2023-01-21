@@ -69,6 +69,11 @@ impl Instruction {
     }
 }
 
+/// Structure that represents a computer
+///
+/// * `x_reg`: X Register
+/// * `cycle`: Clock Circuit Cycle Counter
+/// * `signal_strengths`: Cumulative signal strength
 struct Computer {
     x_reg: i32,
     cycle: i32,
@@ -84,10 +89,16 @@ impl Computer {
             signal_strengths: 0
         }
     }
+
+    /// Increments the computers clock circuit (cycle counter)
     fn incr_cycle(&mut self) {
         self.cycle += 1;
     }
 
+    /// Executes the instruction provided by the CRT program
+    ///
+    /// * `instr`: Instruction to completed
+    /// * `val`: Value associated with the instruction
     fn execute_instruction(&mut self, instr: &Instruction, val: i32) {
         match instr {
             Instruction::NOOP => {
@@ -100,12 +111,11 @@ impl Computer {
                 self.incr_cycle();
                 self.inspect_values();
                 self.x_reg += val;
-
             }
         }
-
     }
 
+    /// Inspect values to determine signal strength
     fn inspect_values(&mut self) {
         if self.cycle == 20 {
             self.signal_strengths += self.x_reg * self.cycle;
