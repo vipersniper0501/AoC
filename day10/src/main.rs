@@ -53,9 +53,14 @@ impl Day10 {
 }
 
 
+/// Different types of Instructions possible for CRT
 #[derive(Debug,PartialEq)]
 enum Instruction {
+    /// No operation instruction. Runs for one cycle and does nothing.
     NOOP,
+    /// Add instruction. Runs for two cycles. First cycle does nothing.
+    /// At the end of the second cycle it adds a value (can be negative or
+    /// positive) to the X register of the computer.
     ADDX
 }
 
