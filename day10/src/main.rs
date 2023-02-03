@@ -48,7 +48,18 @@ impl Day10 {
     }
 
     fn part2(&self) {
-        println!("Part2: Unsolved");
+        let mut comp = Computer::new();
+        comp.print_sprite_position();
+        for (instr, val) in &self.commands {
+            comp.execute_instruction(instr, *val)
+        }
+        println!("Part2:");
+        for row in 0..6 {
+            for col in 0..40 {
+                print!("{}", comp.crt_panel[row][col]);
+            }
+            println!("");
+        }
     }
 }
 
@@ -66,6 +77,9 @@ enum Instruction {
 }
 
 impl Instruction {
+    /// Parses a string for a supported instruction type
+    ///
+    /// * `s`: Str to parse through
     fn parse(s: &str) -> Self {
         match s {
             "noop" => Self::NOOP,
@@ -80,19 +94,21 @@ impl Instruction {
 /// * `x_reg`: X Register
 /// * `cycle`: Clock Circuit Cycle Counter
 /// * `signal_strengths`: Cumulative signal strength
-struct Computer {
+struct Computer<'a> {
     x_reg: i32,
     cycle: i32,
-    signal_strengths: i32
+    signal_strengths: i32,
+    crt_panel: [[&'a str; 40]; 6],
 }
 
-impl Computer {
+impl Computer<'_> {
 
     fn new() -> Self {
         Self {
             x_reg: 1,
             cycle: 0,
-            signal_strengths: 0
+            signal_strengths: 0,
+            crt_panel: [[""; 40]; 6],
         }
     }
 
@@ -101,22 +117,67 @@ impl Computer {
         self.cycle += 1;
     }
 
+
+    /// Prints the sprite current location
+    fn print_sprite_position(&self) {
+        print!("Sprite Position:");
+        for col in 0..40 {
+            if col == (self.x_reg - 1) || col == self.x_reg || col == (self.x_reg + 1) {
+                print!("#");
+            }
+            else {
+                print!(".");
+            }
+        }
+        println!("\n");
+    }
+
+    /// Print a row of the crt panel
+    ///
+    /// * `row`: row to print
+    fn print_crt_row(&self, row: i32) {
+        let row = row as usize;
+
+        for col in 0..40 {
+            print!("{}", self.crt_panel[row][col]);
+        }
+        println!("\n");
+    }
+
     /// Executes the instruction provided by the CRT program
     ///
     /// * `instr`: Instruction to completed
     /// * `val`: Value associated with the instruction
     fn execute_instruction(&mut self, instr: &Instruction, val: i32) {
+        let row = self.cycle / 40;
         match instr {
             Instruction::NOOP => {
                 self.incr_cycle();
+                println!("Start cycle {}: begin executing noop", self.cycle);
+                self.draw_pixel();
+                let col = self.cycle % 40 - 1;
+                println!("During cycle {}: CRT draws pixel in position {}", self.cycle, col);
+                self.print_crt_row(row);
                 self.inspect_values();
             },
             Instruction::ADDX => {
                 self.incr_cycle();
+                println!("Start cycle {}: begin executing addx {}", self.cycle, val);
+                self.draw_pixel();
+                let col = self.cycle % 40 - 1;
+                println!("During cycle {}: CRT draws pixel in position {}", self.cycle, col);
+                self.print_crt_row(row);
                 self.inspect_values();
+
                 self.incr_cycle();
+                self.draw_pixel();
+                let col = self.cycle % 40 - 1;
+                println!("During cycle {}: CRT draws pixel in position {}", self.cycle, col);
+                self.print_crt_row(row);
                 self.inspect_values();
                 self.x_reg += val;
+                println!("End of cycle {}: finish executing addx {} (Register is now {})", self.cycle, val, self.x_reg);
+                self.print_sprite_position();
             }
         }
     }
@@ -128,6 +189,27 @@ impl Computer {
         } else if (self.cycle - 20) % 40 == 0 {
             self.signal_strengths += self.x_reg * self.cycle;
         }
+    }
+
+    /// "Draws" a character to the computers crt panel.
+    fn draw_pixel(&mut self) {
+        let row = self.cycle / 40;
+        let col = self.cycle % 40 - 1;
+
+        if col == (self.x_reg - 1) || col == self.x_reg || col == (self.x_reg + 1) {
+            let row = row as usize;
+            let col = col as usize;
+            if row < 6 && col < 40 {
+                self.crt_panel[row][col] = "#";
+            }
+        } else {
+            let row = row as usize;
+            let col = col as usize;
+            if row < 6 && col < 40 {
+                self.crt_panel[row][col] = ".";
+            }
+        }
+
     }
 }
 
