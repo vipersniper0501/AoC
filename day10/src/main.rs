@@ -44,7 +44,8 @@ impl Day10 {
         for (instr, val) in &self.commands {
             comp.execute_instruction(instr, *val)
         }
-        println!("Part1: Signal Strength: {}", comp.signal_strengths);
+        println!("Part1: Signal Strength: {}\n\n\n\n\n\n\n\n\n\n\n", comp.signal_strengths);
+        println!("------------------------------------------------------------------");
     }
 
     fn part2(&self) {
