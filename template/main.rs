@@ -22,6 +22,9 @@ impl DayX {
                 Ok(v) => line_data = v,
                 Err(e) => println!("{e}")
             }
+
+            // parse data here
+
         }
     }
 

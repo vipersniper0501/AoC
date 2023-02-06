@@ -22,6 +22,9 @@ impl Day11 {
                 Ok(v) => line_data = v,
                 Err(e) => println!("{e}")
             }
+
+            // Parse data here
+
         }
     }
 
@@ -32,6 +35,37 @@ impl Day11 {
     fn part2(&self) {
         println!("Part2: Not completed");
     }
+}
+
+
+// needs a parser
+enum Instruction {
+    ADD,
+    MULTIPLY
+}
+
+// needs a parser
+struct Operation {
+    instruction: Instruction,
+    val: i32
+}
+
+
+/// Structure representing a monkey
+///
+/// * `id`: An id for each monkey
+/// * `items`: A vector of items that each monkey is holding
+/// * `operation`: The operation to be completed
+/// * `test_value`: Value to test which monkey the item to be thrown to
+/// * `t_monkey`: The monkey's id that should be thrown to if the test value is true
+/// * `f_monkey`: The monkey's id that should be thrown to if the test value is false
+struct Monkey {
+    id: i32,
+    items: Vec<i32>,
+    operation: Operation,
+    test_value: i32,
+    t_monkey: i32,
+    f_monkey: i32
 }
 
 
