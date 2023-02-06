@@ -1,10 +1,10 @@
 use std::{fs, io::{self, BufRead}};
 
 #[derive(Default)]
-struct DayX {
+struct Day11 {
 }
 
-impl DayX {
+impl Day11 {
 
     fn new() -> Self {
         Self::default()
@@ -36,7 +36,7 @@ impl DayX {
 
 
 fn main() {
-    let mut day = DayX::new();
+    let mut day = Day11::new();
     day.parse();
     day.part1();
     day.part2();
