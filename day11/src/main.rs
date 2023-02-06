@@ -2,6 +2,7 @@ use std::{fs, io::{self, BufRead}};
 
 #[derive(Default)]
 struct Day11 {
+    monkeys: Vec<Monkey>
 }
 
 impl Day11 {
@@ -16,6 +17,9 @@ impl Day11 {
 
         let reader = io::BufReader::new(file);
         
+        let mut monkey_counter = 0;
+
+
         for line in reader.lines() {
             let mut line_data = String::new();
             match line {
@@ -24,6 +28,10 @@ impl Day11 {
             }
 
             // Parse data here
+            // if line.contains("Monkey") {
+
+
+            // }
 
         }
     }
@@ -68,6 +76,20 @@ struct Monkey {
     f_monkey: i32
 }
 
+
+impl Monkey {
+    fn new(a_id: i32, a_items: Vec<i32>, a_operation: Operation, a_test_value: i32,
+        a_t_monkey: i32, a_f_monkey: i32) -> Self {
+        Self { 
+            id: a_id, 
+            items: a_items,
+            operation: a_operation,
+            test_value: a_test_value,
+            t_monkey: a_t_monkey,
+            f_monkey: a_f_monkey
+        }
+    }
+}
 
 fn main() {
     let mut day = Day11::new();
