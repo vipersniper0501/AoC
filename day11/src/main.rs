@@ -17,8 +17,9 @@ impl Day11 {
 
         let reader = io::BufReader::new(file);
         
-        let mut monkey_counter = 0;
-
+        let mut monkey_counter = -1;
+        let mut items: Vec<i32> = Vec::new();
+        let mut ops = Operation::new();
 
         for line in reader.lines() {
             let mut line_data = String::new();
@@ -28,12 +29,51 @@ impl Day11 {
             }
 
             // Parse data here
-            // if line.contains("Monkey") {
+            if line_data.contains("Monkey") {
+                // create previous monkey here
+                monkey_counter += 1;
+            }
 
 
-            // }
+            if line_data.contains("Starting items:") {
+                // split this off into seperate function
+                items = Vec::new();
+                let temp_items = line_data.split(": ").collect::<Vec<&str>>();
+                for i in temp_items[1].split(", ").collect::<Vec<&str>>() {
+                    items.push(i.parse().unwrap());
+                }
+            }
 
+
+            if line_data.contains("Operation") {
+                // split this off into seperate function
+                ops = Operation::new();
+                let temp: Vec<&str> = line_data
+                    .split("= old ")
+                    .collect::<Vec<&str>>();
+
+                let temp: Vec<&str> = temp[1]
+                    .split(' ')
+                    .collect::<Vec<&str>>();
+
+                let instr: Instruction = Instruction::parse(temp[0]);
+                let mut value: i32 = 0;
+
+                if temp[1] == "old" {
+                    value = -1;
+                }
+                else {
+                    value = temp[1].parse().unwrap();
+                }
+
+                ops.instruction = instr;
+                ops.val = value;
+            }
+
+            println!("Current Monkey: id={}, items={:?}, ops={:#?}", monkey_counter, items, ops);
         }
+        //create last monkey here.
+
     }
 
     fn part1(&self) {
@@ -46,16 +86,36 @@ impl Day11 {
 }
 
 
-// needs a parser
+#[derive(Debug)]
 enum Instruction {
+    NONE,
     ADD,
     MULTIPLY
 }
 
-// needs a parser
+impl Instruction {
+    fn parse(s: &str) -> Self {
+        match s {
+            "*" => return Self::MULTIPLY,
+            "+" => return Self::ADD,
+            _ => panic!("invalid instruction '{s}'")
+        }
+    }
+}
+
+#[derive(Debug)]
 struct Operation {
     instruction: Instruction,
     val: i32
+}
+
+impl Operation {
+    fn new() -> Self {
+        Self {
+            instruction: Instruction::NONE,
+            val: 0
+        }
+    }
 }
 
 
