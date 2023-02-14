@@ -49,8 +49,8 @@ impl Day11 {
                 a_items = Vec::new();
                 ops = Operation::new();
                 divisible_by = 1;
-                let mut t_monkey = monkey_counter;
-                let mut f_monkey = monkey_counter;
+                true_monkey = monkey_counter;
+                false_monkey = monkey_counter;
             }
 
 
@@ -109,11 +109,6 @@ impl Day11 {
                     .parse().unwrap();
             }
 
-            // println!("Current Monkey: id={}, items={:?}, ops={:#?}, divisible by={}",
-                // monkey_counter,
-                // items,
-                // ops,
-                // divisible_by);
         }
         //create last monkey here.
         let new_monkey: Monkey = Monkey::new(monkey_counter,
