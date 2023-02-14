@@ -18,8 +18,11 @@ impl Day11 {
         let reader = io::BufReader::new(file);
         
         let mut monkey_counter = -1;
-        let mut items: Vec<i32> = Vec::new();
+        let mut a_items: Vec<i32> = Vec::new();
         let mut ops = Operation::new();
+        let mut divisible_by = 1;
+        let mut true_monkey = monkey_counter;
+        let mut false_monkey = monkey_counter;
 
         for line in reader.lines() {
             let mut line_data = String::new();
@@ -31,16 +34,32 @@ impl Day11 {
             // Parse data here
             if line_data.contains("Monkey") {
                 // create previous monkey here
+                if monkey_counter >= 0 {
+                    let new_monkey: Monkey = Monkey::new(monkey_counter,
+                        a_items,
+                        ops,
+                        divisible_by,
+                        true_monkey,
+                        false_monkey
+                        );
+                    self.monkeys.push(new_monkey);
+                }
+                // Now increment monkey and reset values
                 monkey_counter += 1;
+                a_items = Vec::new();
+                ops = Operation::new();
+                divisible_by = 1;
+                let mut t_monkey = monkey_counter;
+                let mut f_monkey = monkey_counter;
             }
 
 
             if line_data.contains("Starting items:") {
                 // split this off into seperate function
-                items = Vec::new();
+                a_items = Vec::new();
                 let temp_items = line_data.split(": ").collect::<Vec<&str>>();
                 for i in temp_items[1].split(", ").collect::<Vec<&str>>() {
-                    items.push(i.parse().unwrap());
+                    a_items.push(i.parse().unwrap());
                 }
             }
 
@@ -57,22 +76,63 @@ impl Day11 {
                     .collect::<Vec<&str>>();
 
                 let instr: Instruction = Instruction::parse(temp[0]);
-                let mut value: i32 = 0;
+                let mut _value: i32 = 0;
 
                 if temp[1] == "old" {
-                    value = -1;
+                    _value = -1;
                 }
                 else {
-                    value = temp[1].parse().unwrap();
+                    _value = temp[1].parse().unwrap();
                 }
 
                 ops.instruction = instr;
-                ops.val = value;
+                ops.val = _value;
             }
 
-            println!("Current Monkey: id={}, items={:?}, ops={:#?}", monkey_counter, items, ops);
+            if line_data.contains("Test") {
+                divisible_by = line_data.split(" by ").collect::<Vec<&str>>()[1]
+                    .parse().unwrap();
+            }
+
+            if line_data.contains("true") {
+                true_monkey = line_data
+                    .split(" monkey ")
+                    .collect::<Vec<&str>>()[1]
+                    .parse().unwrap();
+
+            }
+
+            if line_data.contains("false") {
+                false_monkey = line_data
+                    .split(" monkey ")
+                    .collect::<Vec<&str>>()[1]
+                    .parse().unwrap();
+            }
+
+            // println!("Current Monkey: id={}, items={:?}, ops={:#?}, divisible by={}",
+                // monkey_counter,
+                // items,
+                // ops,
+                // divisible_by);
         }
         //create last monkey here.
+        let new_monkey: Monkey = Monkey::new(monkey_counter,
+            a_items,
+            ops,
+            divisible_by,
+            true_monkey,
+            false_monkey
+            );
+        self.monkeys.push(new_monkey);
+
+        for m in &self.monkeys {
+            print!("Monkey id: {}\n", m.id);
+            print!("Items: {:?}\n", m.items);
+            print!("Operations: {:#?}\n", m.operation);
+            print!("Divisible By Value: {}\n", m.test_value);
+            print!("True monkey id: {}\n", m.t_monkey);
+            print!("False monkey id: {}\n\n\n", m.f_monkey);
+        }
 
     }
 
