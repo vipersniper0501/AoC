@@ -1,5 +1,9 @@
 use std::{fs, io::{self, BufRead}};
 
+pub mod monkey;
+
+use monkey::*;
+
 #[derive(Default)]
 struct Day11 {
     monkeys: Vec<Monkey>
@@ -121,12 +125,7 @@ impl Day11 {
         self.monkeys.push(new_monkey);
 
         for m in &self.monkeys {
-            print!("Monkey id: {}\n", m.id);
-            print!("Items: {:?}\n", m.items);
-            print!("Operations: {:#?}\n", m.operation);
-            print!("Divisible By Value: {}\n", m.test_value);
-            print!("True monkey id: {}\n", m.t_monkey);
-            print!("False monkey id: {}\n\n\n", m.f_monkey);
+            println!("{:?}", m);
         }
 
     }
@@ -141,70 +140,8 @@ impl Day11 {
 }
 
 
-#[derive(Debug)]
-enum Instruction {
-    NONE,
-    ADD,
-    MULTIPLY
-}
-
-impl Instruction {
-    fn parse(s: &str) -> Self {
-        match s {
-            "*" => return Self::MULTIPLY,
-            "+" => return Self::ADD,
-            _ => panic!("invalid instruction '{s}'")
-        }
-    }
-}
-
-#[derive(Debug)]
-struct Operation {
-    instruction: Instruction,
-    val: i32
-}
-
-impl Operation {
-    fn new() -> Self {
-        Self {
-            instruction: Instruction::NONE,
-            val: 0
-        }
-    }
-}
 
 
-/// Structure representing a monkey
-///
-/// * `id`: An id for each monkey
-/// * `items`: A vector of items that each monkey is holding
-/// * `operation`: The operation to be completed
-/// * `test_value`: Value to test which monkey the item to be thrown to
-/// * `t_monkey`: The monkey's id that should be thrown to if the test value is true
-/// * `f_monkey`: The monkey's id that should be thrown to if the test value is false
-struct Monkey {
-    id: i32,
-    items: Vec<i32>,
-    operation: Operation,
-    test_value: i32,
-    t_monkey: i32,
-    f_monkey: i32
-}
-
-
-impl Monkey {
-    fn new(a_id: i32, a_items: Vec<i32>, a_operation: Operation, a_test_value: i32,
-        a_t_monkey: i32, a_f_monkey: i32) -> Self {
-        Self { 
-            id: a_id, 
-            items: a_items,
-            operation: a_operation,
-            test_value: a_test_value,
-            t_monkey: a_t_monkey,
-            f_monkey: a_f_monkey
-        }
-    }
-}
 
 fn main() {
     let mut day = Day11::new();
