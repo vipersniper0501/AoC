@@ -43,6 +43,49 @@ impl Monkey {
             f_monkey: a_f_monkey
         }
     }
+
+    /// Monkey inspects the first item that they are holding.
+    ///
+    /// Return: Returns the id of the monkey that it wants to throw its current
+    /// item to. If returns -1, there is no item to inspect.
+    pub fn inspect(&mut self) -> i32 {
+        match self.items.get_mut(0) {
+            Some(val) => {
+                let mut current_val: i32 = val.clone();
+                
+                if self.operation.val == -1 {
+                    // Complete operation
+                    match &self.operation.instruction {
+                        Instruction::ADD => current_val += current_val,
+                        Instruction::MULTIPLY => current_val *= current_val,
+                        Instruction::NONE => panic!("Missing operation for monkey!")
+                    }
+                } else {
+                    // Complete operation
+                    match &self.operation.instruction {
+                        Instruction::ADD => current_val += self.operation.val,
+                        Instruction::MULTIPLY => current_val *= self.operation.val,
+                        Instruction::NONE => panic!("Missing operation for monkey!")
+                    }
+                }
+
+                current_val /= 3;
+
+                // Change the item value the monkey is currently holding to the
+                // new current value.
+                *val = current_val.clone();
+
+                // Perform test
+                let test_result: bool = current_val % self.test_value == 0;
+                if test_result == true {
+                    return self.t_monkey;
+                } else {
+                    return self.f_monkey;
+                }
+            },
+            None => return -1
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -65,7 +108,7 @@ impl Instruction {
 #[derive(Debug)]
 pub struct Operation {
     pub instruction: Instruction,
-    pub val: i32
+    pub val: i32 // If val is -1, then the operation is performed on the old value
 }
 
 impl Operation {
