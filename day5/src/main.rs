@@ -46,6 +46,7 @@ fn crate_mover_9000(mut ship: Vec<Vec<String>>, quantity: i32, start: i32, end: 
     }
 
     // println!("Moved {} from {} to {}: \n{:#?}", quantity, start, end, ship);
+    // println!("Moved {} from {} to {}", quantity, start, end);
 
     return ship;
 }
@@ -93,7 +94,7 @@ fn main() {
         }
     }
     println!("");
-    print!("Cargo organization using teh Crate Mover 9001: ");
+    print!("Cargo organization using the Crate Mover 9001: ");
     for i in 0..ship2.len() {
         match ship2[i].pop() {
             Some(x) => print!("{}", x),
