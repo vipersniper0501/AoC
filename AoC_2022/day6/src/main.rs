@@ -11,17 +11,13 @@ fn find_start_of_packet_marker(stream: &String, size: usize) -> Option<i32> {
         }
     }
     return None;
-
-
 }
-
 
 fn main() {
     let file = fs::File::open("data/input")
         .expect("File not found");
 
     let reader = io::BufReader::new(file);
-
 
     for line in reader.lines() {
         let mut line_data = String::new();
