@@ -1,11 +1,12 @@
 use std::{fs, io::{self, BufRead}};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Card {
-    id: i32,
+    _id: i32,
     numbers: Vec<i32>,
     winning_numbers: Vec<i32>,
-    matches: Vec<i32>
+    matches: Vec<i32>,
+    copies: i32,
 }
 
 fn parse() -> Vec<Card> {
@@ -48,7 +49,11 @@ fn parse() -> Vec<Card> {
         }
 
         current_id += 1;
-        let new_card: Card = Card {id: current_id, numbers: n, winning_numbers: wn, matches: Vec::new() };
+        let new_card: Card = Card {_id: current_id,
+                                   numbers: n, 
+                                   winning_numbers: wn, 
+                                   matches: Vec::new(),
+                                   copies: 1};
         cards.push(new_card);
     }
 
@@ -81,6 +86,22 @@ fn calculate_total_points(cards: &Vec<Card>) -> i32 {
     return total_points;
 }
 
+fn calculate_number_of_scratchcards(cards: &mut Vec<Card>) -> i32 {
+    let mut number_of_scratchcards: i32 = 0;
+
+    for i in 0..cards.len() {
+        for x in 0..cards[i].matches.len() {
+            cards[i + x + 1].copies += cards[i].copies;
+        }
+    }
+
+    for c in cards {
+        number_of_scratchcards += c.copies;
+    }
+
+    return number_of_scratchcards;
+}
+
 fn part1(cards: &Vec<Card>) {
 
     let total_points: i32 = calculate_total_points(cards);
@@ -88,13 +109,15 @@ fn part1(cards: &Vec<Card>) {
 
 }
 
-fn part2() {
+fn part2(cards: &mut Vec<Card>) {
 
+    let total_number_of_scratchcards = calculate_number_of_scratchcards(cards);
+    println!("Part2: Total number of scratchcards = {}", total_number_of_scratchcards);
 }
 
 fn main() {
     let mut cards = parse();
     find_matches(&mut cards);
-    // println!("{:#?}", cards);
     part1(&cards);
+    part2(&mut cards);
 }
