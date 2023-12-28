@@ -55,8 +55,36 @@ fn parse() -> Vec<Card> {
     return cards;
 }
 
+fn find_matches(cards: &mut Vec<Card>) {
 
-fn part1(cards: Vec<Card>) {
+    for c in cards {
+        for n in &c.numbers {
+            if c.winning_numbers.contains(&n) {
+                c.matches.push(*n);
+            }
+        }
+    }
+
+}
+
+fn calculate_total_points(cards: &Vec<Card>) -> i32 {
+    let mut total_points = 0;
+
+    for c in cards {
+        let number_of_matches: u32 = c.matches.len() as u32;
+        if number_of_matches == 0 {
+            continue;
+        }
+        total_points += 2_i32.pow(number_of_matches - 1);
+    }
+
+    return total_points;
+}
+
+fn part1(cards: &Vec<Card>) {
+
+    let total_points: i32 = calculate_total_points(cards);
+    println!("Part1: Total points = {}", total_points);
 
 }
 
@@ -65,7 +93,8 @@ fn part2() {
 }
 
 fn main() {
-    let cards = parse();
-    println!("{:#?}", cards);
-    part1(cards);
+    let mut cards = parse();
+    find_matches(&mut cards);
+    // println!("{:#?}", cards);
+    part1(&cards);
 }
