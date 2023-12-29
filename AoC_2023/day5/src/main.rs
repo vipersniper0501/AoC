@@ -2,21 +2,21 @@ use std::{fs, io::{self, BufRead}};
 
 #[derive(Debug)]
 struct Seed {
-    value: i32,
-    soil: i32,
-    fertilizer: i32,
-    water: i32,
-    light: i32,
-    temperature: i32,
-    humidity: i32,
-    location: i32
+    value: i64,
+    soil: i64,
+    fertilizer: i64,
+    water: i64,
+    light: i64,
+    temperature: i64,
+    humidity: i64,
+    location: i64
 }
 
 #[derive(Debug)]
 struct Mapping {
-    destination: i32,
-    source: i32,
-    range: i32
+    destination: i64,
+    source: i64,
+    range: i64
 }
 
 #[derive(Debug, Default)]
@@ -32,7 +32,7 @@ struct Almanac {
 }
 
 fn parse() -> Almanac{
-    let file = fs::File::open("data/test")
+    let file = fs::File::open("data/input")
         .expect("No file found");
     let reader = io::BufReader::new(file);
 
@@ -65,8 +65,8 @@ fn parse() -> Almanac{
             let seeds = line_data.split(" ").filter(|&x| !x.is_empty())
                                  .collect::<Vec<&str>>();
             for s in seeds {
-                almanac.seeds.push(Seed { value: s.parse::<i32>()
-                                                   .expect("Failed to parse i32"),
+                almanac.seeds.push(Seed { value: s.parse::<i64>()
+                                                   .expect("Failed to parse i64"),
                                           soil: 0,
                                           fertilizer: 0,
                                           water: 0,
@@ -89,7 +89,7 @@ fn parse() -> Almanac{
         
         match slow_search(&line_data) {
             Some(v) => {
-                current_mapping = v as i32;
+                current_mapping = v as i64;
                 continue;
             },
             None => ()
@@ -97,9 +97,9 @@ fn parse() -> Almanac{
 
         let create_mapping = |s: &str| -> Mapping {
             let line_data = s.split(" ").collect::<Vec<&str>>();
-            let mut data: Vec<i32> = Vec::new();
+            let mut data: Vec<i64> = Vec::new();
             for d in line_data {
-                data.push(d.parse::<i32>().expect("Failed to parse i32"));
+                data.push(d.parse::<i64>().expect("Failed to parse i64"));
             }
             Mapping { destination: data[0],
                       source: data[1], 
@@ -109,31 +109,24 @@ fn parse() -> Almanac{
 
         match current_mapping {
             1 => {
-                // println!("Seed to soil mapping: {}", line_data);
                 almanac.seed_to_soil.push(create_mapping(&line_data));
             },
             2 => {
-                // println!("Soil to fertilizer mapping: {}", line_data);
                 almanac.soil_to_fertilizer.push(create_mapping(&line_data));
             },
             3 => {
-                // println!("Fertilizer to water mapping: {}", line_data);
                 almanac.fertilizer_to_water.push(create_mapping(&line_data));
             },
             4 => {
-                // println!("Water to light mapping: {}", line_data);
                 almanac.water_to_light.push(create_mapping(&line_data));
             },
             5 => {
-                // println!("Light to temperature mapping: {}", line_data);
                 almanac.light_to_temperature.push(create_mapping(&line_data));
             },
             6 => {
-                // println!("Temperature to humidity mapping: {}", line_data);
                 almanac.temperature_to_humidity.push(create_mapping(&line_data));
             },
             7 => {
-                // println!("Humidity to location mapping: {}", line_data);
                 almanac.humidity_to_location.push(create_mapping(&line_data));
             },
             _ => ()
@@ -143,18 +136,113 @@ fn parse() -> Almanac{
     return almanac;
 }
 
-fn part1(almanac: &Almanac) {
+fn calculate_seeds(almanac: &mut Almanac) -> i64 {
 
+    for s in &mut almanac.seeds {
+        
+        // Seed to soil
+        for m in &almanac.seed_to_soil {
+            if s.value >= m.source && s.value < m.source + m.range {
+                let offset: i64 = s.value - m.source;
+                s.soil = m.destination + offset;
+            }
+        }
+        if s.soil == 0 {
+            s.soil = s.value;
+        }
+
+        // Soil to fertilizer
+        for m in &almanac.soil_to_fertilizer {
+            if s.soil >= m.source && s.soil < m.source + m.range {
+                let offset: i64 = s.soil - m.source;
+                s.fertilizer = m.destination + offset;
+            }
+        }
+        if s.fertilizer == 0 {
+            s.fertilizer = s.soil;
+        }
+
+        // Fertilizer to water
+        for m in &almanac.fertilizer_to_water {
+            if s.fertilizer >= m.source && s.fertilizer < m.source + m.range {
+                let offset: i64 = s.fertilizer - m.source;
+                s.water = m.destination + offset;
+            }
+        }
+        if s.water == 0 {
+            s.water = s.fertilizer;
+        }
+
+        // Water to light
+        for m in &almanac.water_to_light {
+            if s.water >= m.source && s.water < m.source + m.range {
+                let offset: i64 = s.water - m.source;
+                s.light = m.destination + offset;
+            }
+        }
+        if s.light == 0 {
+            s.light = s.water;
+        }
+
+        // Light to temperature
+        for m in &almanac.light_to_temperature {
+            if s.light >= m.source && s.light < m.source + m.range {
+                let offset: i64 = s.light - m.source;
+                s.temperature = m.destination + offset;
+            }
+        }
+        if s.temperature == 0 {
+            s.temperature = s.light;
+        }
+
+        // Temperature to humidity
+        for m in &almanac.temperature_to_humidity {
+            if s.temperature >= m.source && s.temperature < m.source + m.range {
+                let offset: i64 = s.temperature - m.source;
+                s.humidity = m.destination + offset;
+            }
+        }
+        if s.humidity == 0 {
+            s.humidity = s.temperature;
+        }
+
+        // Humidity to location
+        for m in &almanac.humidity_to_location {
+            if s.humidity >= m.source && s.humidity < m.source + m.range {
+                let offset: i64 = s.humidity - m.source;
+                s.location = m.destination + offset;
+            }
+        }
+        if s.location == 0 {
+            s.location = s.humidity;
+        }
+    }
+
+    let mut lowest_loc: i64 = almanac.seeds[0].location;
+    for s in &almanac.seeds {
+        if s.location < lowest_loc {
+            lowest_loc = s.location;
+        }
+    }
+    
+    return lowest_loc;
+}
+
+fn part1(almanac: &mut Almanac) {
+    let lowest_loc: i64 = calculate_seeds(almanac);
+
+    println!("Part 1: Lowest location = {}", lowest_loc);
 }
 
 fn part2(almanac: &Almanac) {
 
+    println!("Part 2: Not complete");
 }
 
 fn main() {
-    let almanac = parse();
-    println!("{:#?}", almanac);
-    part1(&almanac);
+    let mut almanac = parse();
+    // println!("{:#?}", almanac);
+    part1(&mut almanac);
     part2(&almanac);
     
 }
