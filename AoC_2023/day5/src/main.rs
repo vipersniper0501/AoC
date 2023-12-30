@@ -144,85 +144,22 @@ fn parse(seed_range: bool) -> Almanac{
 fn calculate_seeds(almanac: &mut Almanac) -> i64 {
     println!("Calculating seeds value...");
 
+    let maps = [&almanac.seed_to_soil, &almanac.soil_to_fertilizer,
+                &almanac.fertilizer_to_water, &almanac.water_to_light,
+                &almanac.light_to_temperature, &almanac.temperature_to_humidity,
+                &almanac.humidity_to_location];
+
     almanac.seeds.par_iter_mut().for_each(|s| {
-    // for s in &mut almanac.seeds {
-        // println!("Seed: {}", s.value);
-        
-        // Seed to soil
-        for m in &almanac.seed_to_soil {
-            if s.value >= m.source && s.value < m.source + m.range {
-                let offset: i64 = s.value - m.source;
-                s.value = m.destination + offset;
-                break;
+
+        for i in 0..maps.len() {
+            for m in maps[i] {
+                if s.value >= m.source && s.value < m.source + m.range {
+                    let offset: i64 = s.value - m.source;
+                    s.value = m.destination + offset;
+                    break;
+                }
             }
         }
-
-        // println!("Soil: {}", s.value);
-
-        // Soil to fertilizer
-        for m in &almanac.soil_to_fertilizer {
-            if s.value >= m.source && s.value < m.source + m.range {
-                let offset: i64 = s.value - m.source;
-                s.value = m.destination + offset;
-                break;
-            }
-        }
-
-        // println!("Fertilizer: {}", s.value);
-
-        // Fertilizer to water
-        for m in &almanac.fertilizer_to_water {
-            if s.value >= m.source && s.value < m.source + m.range {
-                let offset: i64 = s.value - m.source;
-                s.value = m.destination + offset;
-                break;
-            }
-        }
-
-        // println!("Water: {}", s.value);
-
-        // Water to light
-        for m in &almanac.water_to_light {
-            if s.value >= m.source && s.value < m.source + m.range {
-                let offset: i64 = s.value - m.source;
-                s.value = m.destination + offset;
-                break;
-            }
-        }
-
-        // println!("Light: {}", s.value);
-
-        // Light to temperature
-        for m in &almanac.light_to_temperature {
-            if s.value >= m.source && s.value < m.source + m.range {
-                let offset: i64 = s.value - m.source;
-                s.value = m.destination + offset;
-                break;
-            }
-        }
-        
-        // println!("Temperature: {}", s.value);
-
-        // Temperature to humidity
-        for m in &almanac.temperature_to_humidity {
-            if s.value >= m.source && s.value < m.source + m.range {
-                let offset: i64 = s.value - m.source;
-                s.value = m.destination + offset;
-                break;
-            }
-        }
-
-        // println!("Humidity: {}", s.value);
-
-        // Humidity to location
-        for m in &almanac.humidity_to_location {
-            if s.value >= m.source && s.value < m.source + m.range {
-                let offset: i64 = s.value - m.source;
-                s.value = m.destination + offset;
-                break;
-            }
-        }
-        // println!("Location: {}\n\n", s.value);
     });
 
     println!("Finding lowest location...");
