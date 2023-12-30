@@ -1,15 +1,9 @@
 use std::{fs, io::{self, BufRead}};
+use rayon::prelude::*;
 
 #[derive(Debug)]
 struct Seed {
     value: i64,
-    soil: i64,
-    fertilizer: i64,
-    water: i64,
-    light: i64,
-    temperature: i64,
-    humidity: i64,
-    location: i64
 }
 
 #[derive(Debug)]
@@ -31,7 +25,7 @@ struct Almanac {
     humidity_to_location: Vec<Mapping>
 }
 
-fn parse() -> Almanac{
+fn parse(seed_range: bool) -> Almanac{
     let file = fs::File::open("data/input")
         .expect("No file found");
     let reader = io::BufReader::new(file);
@@ -64,18 +58,29 @@ fn parse() -> Almanac{
             };
             let seeds = line_data.split(" ").filter(|&x| !x.is_empty())
                                  .collect::<Vec<&str>>();
-            for s in seeds {
-                almanac.seeds.push(Seed { value: s.parse::<i64>()
-                                                   .expect("Failed to parse i64"),
-                                          soil: 0,
-                                          fertilizer: 0,
-                                          water: 0,
-                                          light: 0,
-                                          temperature: 0,
-                                          humidity: 0,
-                                          location: 0 })
+
+            if seed_range == true {
+                for i in (0..seeds.len()).step_by(2) {
+                    let start = seeds[i].parse::<i64>()
+                                        .expect("Failed to parse i64");
+                    let range = seeds[i + 1].parse::<i64>()
+                                            .expect("Failed to parse i64");
+
+                    println!("Start: {}, Range: {}", start, range);
+                    for x in start..(start + range) {
+                        almanac.seeds.push(
+                            Seed { value: x});
+                    }
+                    
+                }
+            } else {
+                for i in 0..seeds.len() {
+                    almanac.seeds.push(Seed { value: seeds[i].parse::<i64>()
+                                               .expect("Failed to parse i64")})
+                }
             }
         }
+
 
         let slow_search = |s: &str| -> Option<usize> {
             for i in 0..maps.len() {
@@ -96,7 +101,7 @@ fn parse() -> Almanac{
         };
 
         let create_mapping = |s: &str| -> Mapping {
-            let line_data = s.split(" ").collect::<Vec<&str>>();
+            let line_data = s.split(" ");
             let mut data: Vec<i64> = Vec::new();
             for d in line_data {
                 data.push(d.parse::<i64>().expect("Failed to parse i64"));
@@ -137,112 +142,111 @@ fn parse() -> Almanac{
 }
 
 fn calculate_seeds(almanac: &mut Almanac) -> i64 {
+    println!("Calculating seeds value...");
 
-    for s in &mut almanac.seeds {
+    almanac.seeds.par_iter_mut().for_each(|s| {
+    // for s in &mut almanac.seeds {
+        // println!("Seed: {}", s.value);
         
         // Seed to soil
         for m in &almanac.seed_to_soil {
             if s.value >= m.source && s.value < m.source + m.range {
                 let offset: i64 = s.value - m.source;
-                s.soil = m.destination + offset;
+                s.value = m.destination + offset;
+                break;
             }
         }
-        if s.soil == 0 {
-            s.soil = s.value;
-        }
+
+        // println!("Soil: {}", s.value);
 
         // Soil to fertilizer
         for m in &almanac.soil_to_fertilizer {
-            if s.soil >= m.source && s.soil < m.source + m.range {
-                let offset: i64 = s.soil - m.source;
-                s.fertilizer = m.destination + offset;
+            if s.value >= m.source && s.value < m.source + m.range {
+                let offset: i64 = s.value - m.source;
+                s.value = m.destination + offset;
+                break;
             }
         }
-        if s.fertilizer == 0 {
-            s.fertilizer = s.soil;
-        }
+
+        // println!("Fertilizer: {}", s.value);
 
         // Fertilizer to water
         for m in &almanac.fertilizer_to_water {
-            if s.fertilizer >= m.source && s.fertilizer < m.source + m.range {
-                let offset: i64 = s.fertilizer - m.source;
-                s.water = m.destination + offset;
+            if s.value >= m.source && s.value < m.source + m.range {
+                let offset: i64 = s.value - m.source;
+                s.value = m.destination + offset;
+                break;
             }
         }
-        if s.water == 0 {
-            s.water = s.fertilizer;
-        }
+
+        // println!("Water: {}", s.value);
 
         // Water to light
         for m in &almanac.water_to_light {
-            if s.water >= m.source && s.water < m.source + m.range {
-                let offset: i64 = s.water - m.source;
-                s.light = m.destination + offset;
+            if s.value >= m.source && s.value < m.source + m.range {
+                let offset: i64 = s.value - m.source;
+                s.value = m.destination + offset;
+                break;
             }
         }
-        if s.light == 0 {
-            s.light = s.water;
-        }
+
+        // println!("Light: {}", s.value);
 
         // Light to temperature
         for m in &almanac.light_to_temperature {
-            if s.light >= m.source && s.light < m.source + m.range {
-                let offset: i64 = s.light - m.source;
-                s.temperature = m.destination + offset;
+            if s.value >= m.source && s.value < m.source + m.range {
+                let offset: i64 = s.value - m.source;
+                s.value = m.destination + offset;
+                break;
             }
         }
-        if s.temperature == 0 {
-            s.temperature = s.light;
-        }
+        
+        // println!("Temperature: {}", s.value);
 
         // Temperature to humidity
         for m in &almanac.temperature_to_humidity {
-            if s.temperature >= m.source && s.temperature < m.source + m.range {
-                let offset: i64 = s.temperature - m.source;
-                s.humidity = m.destination + offset;
+            if s.value >= m.source && s.value < m.source + m.range {
+                let offset: i64 = s.value - m.source;
+                s.value = m.destination + offset;
+                break;
             }
         }
-        if s.humidity == 0 {
-            s.humidity = s.temperature;
-        }
+
+        // println!("Humidity: {}", s.value);
 
         // Humidity to location
         for m in &almanac.humidity_to_location {
-            if s.humidity >= m.source && s.humidity < m.source + m.range {
-                let offset: i64 = s.humidity - m.source;
-                s.location = m.destination + offset;
+            if s.value >= m.source && s.value < m.source + m.range {
+                let offset: i64 = s.value - m.source;
+                s.value = m.destination + offset;
+                break;
             }
         }
-        if s.location == 0 {
-            s.location = s.humidity;
-        }
-    }
+        // println!("Location: {}\n\n", s.value);
+    });
 
-    let mut lowest_loc: i64 = almanac.seeds[0].location;
-    for s in &almanac.seeds {
-        if s.location < lowest_loc {
-            lowest_loc = s.location;
-        }
-    }
-    
-    return lowest_loc;
+    println!("Finding lowest location...");
+
+    almanac.seeds.par_iter().map(|s| s.value).min().unwrap_or(0)
 }
 
 fn part1(almanac: &mut Almanac) {
     let lowest_loc: i64 = calculate_seeds(almanac);
 
-    println!("Part 1: Lowest location = {}", lowest_loc);
+    println!("Part 1: Lowest location = {}\n", lowest_loc);
 }
 
-fn part2(almanac: &Almanac) {
+fn part2(almanac: &mut Almanac) {
+    let lowest_loc: i64 = calculate_seeds(almanac);
 
-    println!("Part 2: Not complete");
+    println!("Part 2: Lowest location = {}\n", lowest_loc);
 }
 
 fn main() {
-    let mut almanac = parse();
-    // println!("{:#?}", almanac);
+    let mut almanac = parse(false);
     part1(&mut almanac);
-    part2(&almanac);
+    let mut almanac = parse(true);
+    // println!("{:#?}", almanac);
+    part2(&mut almanac);
     
 }
