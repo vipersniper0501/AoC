@@ -1,10 +1,21 @@
 use std::{fs, io::{self, BufRead}};
 use rayon::prelude::*;
 
-#[derive(Debug)]
-struct Seed {
-    value: i64,
-}
+/*
+ * Idea for making it use less memory: After creating a list of "Seeds" immediately
+ * find its lowest value and add it to a seperate list. Then clear the almanac's 
+ * list of Seeds and add the next range of seeds to the almanac and repeat. 
+ * When done with each range and found its lowest, find the lowest of the lowest
+ * and return that. This way we only have one range's worth of memory loaded at 
+ * a time.
+ */
+
+// #[derive(Debug)]
+// struct Seed {
+    // value: i64,
+// }
+
+type Seed = i64;
 
 #[derive(Debug)]
 struct Mapping {
@@ -23,6 +34,15 @@ struct Almanac {
     light_to_temperature: Vec<Mapping>,
     temperature_to_humidity: Vec<Mapping>,
     humidity_to_location: Vec<Mapping>
+}
+
+fn add_seeds_to_almanac(almanac: &mut Almanac, start: i64, range: i64) {
+    for x in start..(start + range) {
+        // almanac.seeds.push(
+            // Seed { value: x});
+        almanac.seeds.push(x);
+    }
+
 }
 
 fn parse(seed_range: bool) -> Almanac{
@@ -67,16 +87,15 @@ fn parse(seed_range: bool) -> Almanac{
                                             .expect("Failed to parse i64");
 
                     println!("Start: {}, Range: {}", start, range);
-                    for x in start..(start + range) {
-                        almanac.seeds.push(
-                            Seed { value: x});
-                    }
+                    add_seeds_to_almanac(&mut almanac, start, range);
                     
                 }
             } else {
                 for i in 0..seeds.len() {
-                    almanac.seeds.push(Seed { value: seeds[i].parse::<i64>()
-                                               .expect("Failed to parse i64")})
+                    // almanac.seeds.push(Seed { value: seeds[i].parse::<i64>()
+                                               // .expect("Failed to parse i64")})
+                    almanac.seeds.push(seeds[i].parse::<i64>()
+                                               .expect("Failed to parse i64"))
                 }
             }
         }
@@ -153,9 +172,14 @@ fn calculate_seeds(almanac: &mut Almanac) -> i64 {
 
         for i in 0..maps.len() {
             for m in maps[i] {
-                if s.value >= m.source && s.value < m.source + m.range {
-                    let offset: i64 = s.value - m.source;
-                    s.value = m.destination + offset;
+                // if s.value >= m.source && s.value < m.source + m.range {
+                    // let offset: i64 = s.value - m.source;
+                    // s.value = m.destination + offset;
+                    // break;
+                // }
+                if *s >= m.source && *s < m.source + m.range {
+                    let offset: i64 = *s - m.source;
+                    *s = m.destination + offset;
                     break;
                 }
             }
@@ -164,7 +188,8 @@ fn calculate_seeds(almanac: &mut Almanac) -> i64 {
 
     println!("Finding lowest location...");
 
-    almanac.seeds.par_iter().map(|s| s.value).min().unwrap_or(0)
+    // almanac.seeds.par_iter().map(|s| s.value).min().unwrap_or(0)
+    almanac.seeds.par_iter().map(|s| *s).min().unwrap_or(0)
 }
 
 fn part1(almanac: &mut Almanac) {
