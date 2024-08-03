@@ -2,19 +2,19 @@ use std::{fs, io::{self, BufRead}};
 
 #[derive(Debug)]
 struct Race {
-    time: i32,
-    record: i32
+    time: i64,
+    record: i64 
 }
 
-fn parse(file_name: &str) -> Vec<Race> {
+fn parse(file_name: &str, kerning: bool) -> Vec<Race> {
     let mut races: Vec<Race> = Vec::new();
 
     let file = fs::File::open(file_name)
         .expect("No file found");
     let reader = io::BufReader::new(file);
 
-    let mut times: Vec<i32> = Vec::new();
-    let mut distances: Vec<i32> = Vec::new();
+    let mut times: Vec<i64> = Vec::new();
+    let mut distances: Vec<i64> = Vec::new();
 
     let mut distances_flag: bool = false;
 
@@ -28,14 +28,28 @@ fn parse(file_name: &str) -> Vec<Race> {
         let mut values: Vec<&str> = line_data.split_whitespace().collect();
         values.remove(0);
 
-        let int_values: Vec<i32> = match values.iter().map(|s| s.parse::<i32>()).collect() {
-            Ok(v) => v,
-            Err(e) => {
-                println!("Failed to parse value {e}");
-                vec![]
-            }
+        let mut int_values = Vec::new();
+        if kerning {
+            let value_str: String = values.join("");
+            let value =  match value_str.parse::<i64>() {
+                Ok(v) => v,
+                Err(e) => {
+                    eprintln!("Parse Error: {e}");
+                    0
+                }
+            };
+            int_values.push(value);
+        } else {
 
-        };
+            int_values = match values.iter().map(|s| s.parse::<i64>()).collect() {
+                Ok(v) => v,
+                Err(e) => {
+                    println!("Failed to parse value {e}");
+                    vec![]
+                }
+
+            };
+        }
 
         if distances_flag == false {
             times = int_values;
@@ -54,13 +68,13 @@ fn parse(file_name: &str) -> Vec<Race> {
 }
 
 fn part1(races: &Vec<Race>) {
-    let mut margin_of_error: i32 = 1;
+    let mut margin_of_error: i64 = 1;
 
     for race in races {
-        let time: i32 = race.time;
-        let record: i32 = race.record;
+        let time: i64 = race.time;
+        let record: i64 = race.record;
 
-        let mut possible_times: i32 = 0;
+        let mut possible_times: i64 = 0;
 
         for time_held in 1..time {
             let remaining_time = time - time_held;
@@ -79,13 +93,38 @@ fn part1(races: &Vec<Race>) {
     println!("Part 1: Margin of Error = {margin_of_error}");
 }
 
-fn part2() {
+fn part2(races: &Vec<Race>) {
+    let race = match races.get(0) {
+        Some(v) => v,
+        None => {
+            panic!("Missing Race!");
+        }
+    };
 
+    let time: i64 = race.time;
+    let record: i64 = race.record;
+
+    let mut possible_times: i64 = 0;
+
+    for time_held in 1..time {
+        let remaining_time = time - time_held;
+
+        let distance = time_held * remaining_time;
+
+        if distance > record {
+            possible_times += 1;
+        }
+    }
+    println!("Part 2: Number of ways to win = {possible_times}");
 }
 
 
 fn main() {
-    let races: Vec<Race> = parse("data/input");
+    let races: Vec<Race> = parse("data/input", false);
     part1(&races);
 
+    let races: Vec<Race> = parse("data/input", true);
+    part2(&races);
 }
+
+
