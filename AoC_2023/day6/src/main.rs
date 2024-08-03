@@ -54,7 +54,29 @@ fn parse(file_name: &str) -> Vec<Race> {
 }
 
 fn part1(races: &Vec<Race>) {
+    let mut margin_of_error: i32 = 1;
 
+    for race in races {
+        let time: i32 = race.time;
+        let record: i32 = race.record;
+
+        let mut possible_times: i32 = 0;
+
+        for time_held in 1..time {
+            let remaining_time = time - time_held;
+
+            let distance = time_held * remaining_time;
+
+            if distance > record {
+                possible_times += 1;
+            }
+        }
+
+        margin_of_error *= possible_times;
+
+    }
+
+    println!("Part 1: Margin of Error = {margin_of_error}");
 }
 
 fn part2() {
