@@ -15,11 +15,11 @@ fn parse(file_name: &str) {
 
 }
 
-fn day1() {
+fn part1() {
 
 }
 
-fn day2() {
+fn part2() {
 
 }
 
