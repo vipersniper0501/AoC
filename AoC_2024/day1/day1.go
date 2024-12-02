@@ -69,6 +69,10 @@ func parse_input() (list1 []int, list2 []int) {
     return
 }
 
+func b_search(list []int, goal int) {
+
+}
+
 func part1(list1 []int, list2 []int) {
 
     quicksort(list1, 0, len(list1) - 1)
@@ -84,7 +88,34 @@ func part1(list1 []int, list2 []int) {
         sum += val
     }
 
-    fmt.Println("Part 1 Solution: ", sum)
+    fmt.Println("Part 1 Solution: Sum = ", sum)
+
+}
+
+func part2(list1 []int, list2 []int) {
+    quicksort(list1, 0, len(list1) - 1)
+    quicksort(list2, 0, len(list2) - 1)
+
+    similarity_score := 0
+
+    right_index := 0
+    for left_index := 0; left_index < len(list1); left_index++ {
+        left_value := list1[left_index]
+        counter := 0
+        for j := right_index; j < len(list2); j++ {
+            if left_value == list2[j] {
+                counter++
+            } else if left_value < list2[j] {
+                right_index = j
+                break
+            }
+
+        }
+        similarity_score += left_value * counter
+    }
+
+
+    fmt.Println("Part 2 Solution: Similarity Score = ", similarity_score)
 
 }
 
@@ -93,5 +124,6 @@ func main() {
     list1, list2 := parse_input()
 
     part1(list1, list2)
+    part2(list1, list2)
 
 }
