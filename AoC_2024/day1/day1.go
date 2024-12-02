@@ -69,10 +69,6 @@ func parse_input() (list1 []int, list2 []int) {
     return
 }
 
-func b_search(list []int, goal int) {
-
-}
-
 func part1(list1 []int, list2 []int) {
 
     quicksort(list1, 0, len(list1) - 1)
