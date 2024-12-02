@@ -40,6 +40,7 @@ func parse_input() (list1 []int, list2 []int) {
     f, err := os.Open("input")
     if err != nil {
         fmt.Println("File io error: ", err)
+        return
     }
     defer f.Close()
 
