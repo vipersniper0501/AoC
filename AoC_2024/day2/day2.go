@@ -51,46 +51,7 @@ func part1(reports [][]int) {
     safe_reports := 0
 
     for i := 0; i < len(reports); i++ {
-        var c_val int
-        if len(reports[i]) < 2 {
-            break
-        }
-        decreasing := false
-        if reports[i][1] < reports[i][0] {
-            decreasing = true
-        }
-        failed_report := false
-        for j := 1; j < len(reports[i]); j++ {
-            c_val = reports[i][j-1]
-            n_val := reports[i][j]
-
-            if n_val < c_val && decreasing {
-                diff := n_val - c_val
-                if diff < 0 {
-                    diff = -diff
-                }
-                if diff > 3 || diff < 1 {
-                    failed_report = true
-                    break
-
-                }
-
-            } else if n_val > c_val && !decreasing {
-                diff := n_val - c_val
-                if diff < 0 {
-                    diff = -diff
-                }
-                if diff > 3 || diff < 1 {
-                    failed_report = true
-                    break
-                }
-
-            } else {
-                failed_report = true
-                break
-            }
-        }
-        if !failed_report {
+        if is_safe(reports[i]) {
             safe_reports++
         }
     }
@@ -99,7 +60,57 @@ func part1(reports [][]int) {
 
 }
 
-func part2() {
+func remove(slice []int, s int) []int {
+    return append(slice[:s], slice[s+1:]...)
+}
+
+func is_safe(report []int) bool {
+    decreasing := true
+    increasing := true
+
+    for j := 1; j < len(report); j++ {
+        l_val := report[j-1]
+        c_val := report[j]
+        diff := c_val - l_val
+        if diff < 0 {
+            diff = -diff
+        }
+        if diff > 3 || diff < 1 {
+            return false
+        }
+
+
+        if l_val < c_val {
+            decreasing = false
+        }
+        if l_val > c_val {
+            increasing = false
+        }
+    }
+
+    return decreasing || increasing
+}
+
+func part2(reports [][]int) {
+    safe_reports := 0
+
+    for i := 0; i < len(reports); i++ {
+        if is_safe(reports[i]) {
+            safe_reports++
+        } else {
+            for j := 0; j < len(reports[i]); j++ {
+                copied := make([]int, len(reports[i]))
+                copy(copied, reports[i])
+                copied = remove(copied, j)
+                if is_safe(copied) {
+                    safe_reports++
+                    break
+                }
+            }
+        }
+    }
+
+    fmt.Println("Solution to Part 2: Safe reports = ", safe_reports)
 
 }
 
@@ -107,5 +118,6 @@ func main() {
 
     reports := parse_input()
     part1(reports)
+    part2(reports)
 
 }
