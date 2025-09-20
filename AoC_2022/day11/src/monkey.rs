@@ -12,7 +12,7 @@
 pub struct Monkey {
     id: i32,
     operation: Operation,
-    test_value: i64,
+    pub test_value: i64,
     t_monkey: i32,
     f_monkey: i32,
     pub inspections: i64,
@@ -53,7 +53,7 @@ impl Monkey {
     ///
     /// Return: Returns the id of the monkey that it wants to throw its current
     /// item to. If returns -1, there is no item to inspect.
-    pub fn inspect(&mut self) -> i32 {
+    pub fn inspect(&mut self, div_by_three: bool, modulus: i64) -> i32 {
         self.inspections += 1;
         match self.items.get_mut(0) {
             Some(val) => {
@@ -75,7 +75,11 @@ impl Monkey {
                     }
                 }
 
-                current_val /= 3;
+                if div_by_three {
+                    current_val /= 3;
+                } else {
+                    current_val %= modulus;
+                }
 
                 // Change the item value the monkey is currently holding to the
                 // new current value.

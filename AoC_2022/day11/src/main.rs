@@ -15,20 +15,6 @@ impl Day11 {
         Self::default()
     }
 
-    fn monkey_throw(&self, mut monkeys: Vec<Monkey>, monkey_id: usize) -> Vec<Monkey> {
-        for _ in 0..monkeys[monkey_id].items.len() {
-            let mut m: Monkey = monkeys[monkey_id].clone();
-            let throw_to: i32 = m.inspect();
-            let m1_item = m.items.remove(0);
-            let mut next_m = monkeys[throw_to as usize].clone();
-            next_m.items.push(m1_item);
-            monkeys[monkey_id] = m;
-            monkeys[throw_to as usize] = next_m;
-        }
-
-        return monkeys
-    }
-
     fn parse(&mut self) -> Vec<Monkey> {
         let file = fs::File::open("data/input")
             .expect("No File Found");
@@ -144,14 +130,20 @@ impl Day11 {
 
     fn part1(&mut self, mut monkeys: Vec<Monkey>) {
         for _ in 0..20 {
-            for m in 0..monkeys.len() {
-                monkeys = self.monkey_throw(monkeys, m);
+            for m_id in 0..monkeys.len() {
+                for _ in 0..monkeys[m_id].items.len() {
+                    let mut m: Monkey = monkeys[m_id].clone();
+                    let throw_to: i32 = m.inspect(true, 0);
+                    let m1_item = m.items.remove(0);
+                    let mut next_m = monkeys[throw_to as usize].clone();
+                    next_m.items.push(m1_item);
+                    monkeys[m_id] = m;
+                    monkeys[throw_to as usize] = next_m;
+                }
             }
         }
 
         monkeys.sort_by_key(|m| std::cmp::Reverse(m.inspections));
-
-        println!("{:?}", monkeys);
 
         let monkey_business = monkeys[0].inspections * monkeys[1].inspections;
         println!("Part1: Monkey business = {monkey_business}");
@@ -160,14 +152,22 @@ impl Day11 {
 
     fn part2(&mut self, mut monkeys: Vec<Monkey>) {
         for _ in 0..10000 {
-            for m in 0..monkeys.len() {
-                monkeys = self.monkey_throw(monkeys, m);
+            for m_id in 0..monkeys.len() {
+                for _ in 0..monkeys[m_id].items.len() {
+                    let mut m: Monkey = monkeys[m_id].clone();
+                    let modulus: i64 = monkeys.iter().map(|m| m.test_value).product();
+                    let throw_to: i32 = m.inspect(false, modulus);
+                    let m1_item = m.items.remove(0);
+                    let mut next_m = monkeys[throw_to as usize].clone();
+                    next_m.items.push(m1_item);
+                    monkeys[m_id] = m;
+                    monkeys[throw_to as usize] = next_m;
+                }
             }
+            
         }
 
         monkeys.sort_by_key(|m| std::cmp::Reverse(m.inspections));
-
-        println!("{:?}", monkeys);
 
         let monkey_business = monkeys[0].inspections * monkeys[1].inspections;
         println!("Part2: Monkey business = {monkey_business}");
