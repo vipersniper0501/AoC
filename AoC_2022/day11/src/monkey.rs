@@ -2,29 +2,33 @@
 /// Structure representing a monkey
 ///
 /// * `id`: An id for each monkey
+/// * `inspections`: The number of times a monkey has inspected an item
 /// * `items`: A vector of items that each monkey is holding
 /// * `operation`: The operation to be completed
 /// * `test_value`: Value to test which monkey the item to be thrown to
 /// * `t_monkey`: The monkey's id that should be thrown to if the test value is true
 /// * `f_monkey`: The monkey's id that should be thrown to if the test value is false
+#[derive(Clone)]
 pub struct Monkey {
     id: i32,
     operation: Operation,
     test_value: i32,
     t_monkey: i32,
     f_monkey: i32,
+    pub inspections: i32,
     pub items: Vec<i32>,
 }
 
 impl std::fmt::Debug for Monkey {
 
     fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        print!("Monkey id: {}\n", self.id);
+        print!("\nMonkey id: {}\n", self.id);
+        print!("Inspections: {}\n", self.inspections);
         print!("Items: {:?}\n", self.items);
-        print!("Operations: {:#?}\n", self.operation);
-        print!("Divisible By Value: {}\n", self.test_value);
-        print!("True monkey id: {}\n", self.t_monkey);
-        print!("False monkey id: {}\n\n\n", self.f_monkey);
+        //print!("Operations: {:#?}\n", self.operation);
+        //print!("Divisible By Value: {}\n", self.test_value);
+        //print!("True monkey id: {}\n", self.t_monkey);
+        //print!("False monkey id: {}\n\n", self.f_monkey);
         Ok(())   
     }
 }
@@ -40,7 +44,8 @@ impl Monkey {
             operation: a_operation,
             test_value: a_test_value,
             t_monkey: a_t_monkey,
-            f_monkey: a_f_monkey
+            f_monkey: a_f_monkey,
+            inspections: 0
         }
     }
 
@@ -49,6 +54,7 @@ impl Monkey {
     /// Return: Returns the id of the monkey that it wants to throw its current
     /// item to. If returns -1, there is no item to inspect.
     pub fn inspect(&mut self) -> i32 {
+        self.inspections += 1;
         match self.items.get_mut(0) {
             Some(val) => {
                 let mut current_val: i32 = val.clone();
@@ -69,14 +75,17 @@ impl Monkey {
                     }
                 }
 
+                //println!("calculated value {current_val}");
                 current_val /= 3;
 
                 // Change the item value the monkey is currently holding to the
                 // new current value.
                 *val = current_val.clone();
 
+                //println!("tested value {current_val}");
                 // Perform test
                 let test_result: bool = current_val % self.test_value == 0;
+                //println!("test result: {test_result}");
                 if test_result == true {
                     return self.t_monkey;
                 } else {
@@ -87,17 +96,9 @@ impl Monkey {
         }
     }
 
-    // This might be better off not being a member function
-    pub fn throw(&mut self, destination_monkey: i32, monkeys_vec: &mut Vec<Monkey>) {
-        let item = self.items.remove(0);
-        // monkeys_vec[destination_monkey].items.push(item);
-        let m_dest = monkeys_vec.get_mut(destination_monkey as usize).unwrap();
-        m_dest.items.push(item);
-        
-    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Instruction {
     NONE,
     ADD,
@@ -114,7 +115,7 @@ impl Instruction {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Operation {
     pub instruction: Instruction,
     pub val: i32 // If val is -1, then the operation is performed on the old value

@@ -15,11 +15,16 @@ impl Day11 {
         Self::default()
     }
 
-    fn monkey_throw(&mut self, src_monkey: &mut monkey::Monkey,
-        dest_monkey_id: i32) {
-        let item = src_monkey.items.remove(0);
-        self.monkeys[dest_monkey_id as usize].items.push(item);
-
+    fn monkey_throw(&mut self, monkey_id: usize) {
+        for _ in 0..self.monkeys[monkey_id].items.len() {
+            let mut m: Monkey = self.monkeys[monkey_id].clone();
+            let throw_to: i32 = m.inspect();
+            let m1_item = m.items.remove(0);
+            let mut next_m = self.monkeys[throw_to as usize].clone();
+            next_m.items.push(m1_item);
+            self.monkeys[monkey_id] = m;
+            self.monkeys[throw_to as usize] = next_m;
+        }
     }
 
     fn parse(&mut self) {
@@ -130,21 +135,21 @@ impl Day11 {
             false_monkey
             );
         self.monkeys.push(new_monkey);
-
-        // for m in &self.monkeys {
-            // println!("{:?}", m);
-        // }
-
     }
 
     fn part1(&mut self) {
-        println!("Part1: Not completed");
-        println!("{:?}", self.monkeys[0]);
-        println!("{:?}", self.monkeys[1]);
-        let inspection = self.monkeys[0].inspect();
-        let mut m = self.monkeys.get_mut(0).unwrap();
-        self.monkey_throw(&mut m, inspection);
-        // self.monkeys[0].throw(self.monkeys[0].inspect(), &mut self.monkeys);
+        for _ in 0..20 {
+            for m in 0..self.monkeys.len() {
+                self.monkey_throw(m);
+            }
+        }
+
+        self.monkeys.sort_by_key(|m| std::cmp::Reverse(m.inspections));
+
+        println!("{:?}", self.monkeys);
+
+        let monkey_business = self.monkeys[0].inspections * self.monkeys[1].inspections;
+        println!("Part1: Monkey business = {monkey_business}");
 
     }
 
@@ -152,9 +157,6 @@ impl Day11 {
         println!("Part2: Not completed");
     }
 }
-
-
-
 
 
 fn main() {
