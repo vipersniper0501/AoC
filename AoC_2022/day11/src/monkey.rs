@@ -12,11 +12,11 @@
 pub struct Monkey {
     id: i32,
     operation: Operation,
-    test_value: i32,
+    test_value: i64,
     t_monkey: i32,
     f_monkey: i32,
-    pub inspections: i32,
-    pub items: Vec<i32>,
+    pub inspections: i64,
+    pub items: Vec<i64>,
 }
 
 impl std::fmt::Debug for Monkey {
@@ -35,8 +35,8 @@ impl std::fmt::Debug for Monkey {
 
 
 impl Monkey {
-    pub fn new(a_id: i32, a_items: Vec<i32>, a_operation: Operation,
-        a_test_value: i32, a_t_monkey: i32, a_f_monkey: i32) -> Self {
+    pub fn new(a_id: i32, a_items: Vec<i64>, a_operation: Operation,
+        a_test_value: i64, a_t_monkey: i32, a_f_monkey: i32) -> Self {
 
         Self { 
             id: a_id, 
@@ -57,7 +57,7 @@ impl Monkey {
         self.inspections += 1;
         match self.items.get_mut(0) {
             Some(val) => {
-                let mut current_val: i32 = val.clone();
+                let mut current_val: i64 = val.clone();
                 
                 if self.operation.val == -1 {
                     // Complete operation
@@ -75,17 +75,14 @@ impl Monkey {
                     }
                 }
 
-                //println!("calculated value {current_val}");
                 current_val /= 3;
 
                 // Change the item value the monkey is currently holding to the
                 // new current value.
                 *val = current_val.clone();
 
-                //println!("tested value {current_val}");
                 // Perform test
                 let test_result: bool = current_val % self.test_value == 0;
-                //println!("test result: {test_result}");
                 if test_result == true {
                     return self.t_monkey;
                 } else {
@@ -118,7 +115,7 @@ impl Instruction {
 #[derive(Debug, Clone)]
 pub struct Operation {
     pub instruction: Instruction,
-    pub val: i32 // If val is -1, then the operation is performed on the old value
+    pub val: i64 // If val is -1, then the operation is performed on the old value
 }
 
 impl Operation {

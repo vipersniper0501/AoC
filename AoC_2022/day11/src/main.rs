@@ -6,7 +6,7 @@ use monkey::*;
 
 #[derive(Default)]
 struct Day11 {
-    monkeys: Vec<Monkey>
+    //monkeys: Vec<Monkey>
 }
 
 impl Day11 {
@@ -15,30 +15,34 @@ impl Day11 {
         Self::default()
     }
 
-    fn monkey_throw(&mut self, monkey_id: usize) {
-        for _ in 0..self.monkeys[monkey_id].items.len() {
-            let mut m: Monkey = self.monkeys[monkey_id].clone();
+    fn monkey_throw(&self, mut monkeys: Vec<Monkey>, monkey_id: usize) -> Vec<Monkey> {
+        for _ in 0..monkeys[monkey_id].items.len() {
+            let mut m: Monkey = monkeys[monkey_id].clone();
             let throw_to: i32 = m.inspect();
             let m1_item = m.items.remove(0);
-            let mut next_m = self.monkeys[throw_to as usize].clone();
+            let mut next_m = monkeys[throw_to as usize].clone();
             next_m.items.push(m1_item);
-            self.monkeys[monkey_id] = m;
-            self.monkeys[throw_to as usize] = next_m;
+            monkeys[monkey_id] = m;
+            monkeys[throw_to as usize] = next_m;
         }
+
+        return monkeys
     }
 
-    fn parse(&mut self) {
+    fn parse(&mut self) -> Vec<Monkey> {
         let file = fs::File::open("data/input")
             .expect("No File Found");
 
         let reader = io::BufReader::new(file);
         
         let mut monkey_counter = -1;
-        let mut a_items: Vec<i32> = Vec::new();
+        let mut a_items: Vec<i64> = Vec::new();
         let mut ops = Operation::new();
         let mut divisible_by = 1;
         let mut true_monkey = monkey_counter;
         let mut false_monkey = monkey_counter;
+
+        let mut monkeys: Vec<Monkey> = Vec::new();
 
         for line in reader.lines() {
             let mut line_data = String::new();
@@ -58,7 +62,7 @@ impl Day11 {
                         true_monkey,
                         false_monkey
                         );
-                    self.monkeys.push(new_monkey);
+                    monkeys.push(new_monkey);
                 }
                 // Now increment monkey and reset values
                 monkey_counter += 1;
@@ -92,7 +96,7 @@ impl Day11 {
                     .collect::<Vec<&str>>();
 
                 let instr: Instruction = Instruction::parse(temp[0]);
-                let mut _value: i32 = 0;
+                let mut _value: i64 = 0;
 
                 if temp[1] == "old" {
                     _value = -1;
@@ -134,34 +138,46 @@ impl Day11 {
             true_monkey,
             false_monkey
             );
-        self.monkeys.push(new_monkey);
+        monkeys.push(new_monkey);
+        return monkeys;
     }
 
-    fn part1(&mut self) {
+    fn part1(&mut self, mut monkeys: Vec<Monkey>) {
         for _ in 0..20 {
-            for m in 0..self.monkeys.len() {
-                self.monkey_throw(m);
+            for m in 0..monkeys.len() {
+                monkeys = self.monkey_throw(monkeys, m);
             }
         }
 
-        self.monkeys.sort_by_key(|m| std::cmp::Reverse(m.inspections));
+        monkeys.sort_by_key(|m| std::cmp::Reverse(m.inspections));
 
-        println!("{:?}", self.monkeys);
+        println!("{:?}", monkeys);
 
-        let monkey_business = self.monkeys[0].inspections * self.monkeys[1].inspections;
+        let monkey_business = monkeys[0].inspections * monkeys[1].inspections;
         println!("Part1: Monkey business = {monkey_business}");
 
     }
 
-    fn part2(&self) {
-        println!("Part2: Not completed");
+    fn part2(&mut self, mut monkeys: Vec<Monkey>) {
+        for _ in 0..10000 {
+            for m in 0..monkeys.len() {
+                monkeys = self.monkey_throw(monkeys, m);
+            }
+        }
+
+        monkeys.sort_by_key(|m| std::cmp::Reverse(m.inspections));
+
+        println!("{:?}", monkeys);
+
+        let monkey_business = monkeys[0].inspections * monkeys[1].inspections;
+        println!("Part2: Monkey business = {monkey_business}");
     }
 }
 
 
 fn main() {
     let mut day = Day11::new();
-    day.parse();
-    day.part1();
-    day.part2();
+    let monkeys = day.parse();
+    day.part1(monkeys.clone());
+    day.part2(monkeys.clone());
 }
